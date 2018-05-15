@@ -1,0 +1,5 @@
+CHECK: nuclear weapons risk: remove terrorism and make it italics
+CHECK: make attitude changes visible for 1 turn
+CHECK: add background image
+what is team
+CHECK: asteroid does not show up in risks

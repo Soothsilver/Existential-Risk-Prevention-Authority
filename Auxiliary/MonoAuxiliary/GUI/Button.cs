@@ -1,0 +1,93 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace Auxiliary.GUI
+{
+    /// <summary>
+    /// Represents an Auxiliary button.
+    /// </summary>
+    public class Button : UIElement
+    {
+        /// <summary>
+        /// Text on the button.
+        /// </summary>
+        public string Caption {get; set;}
+ 
+
+        public object Tag { get; set; }
+
+        /// <summary>
+        /// Called whenever the user left-clicks the button.
+        /// </summary>
+        public event Action<Button> Click;
+        public event Action<Button> RightClick;
+
+        /// <summary>
+        /// Calls the Click event.
+        /// </summary>
+        protected virtual void OnClick(Button button)
+        {
+            if (Click != null)
+            {
+                Click(button);
+            }
+        }
+        /// <summary>
+        /// Calls OnClick when the button is clicked.
+        /// </summary>
+        public override void Update()
+        {
+            if (Root.WasMouseLeftClick && Root.IsMouseOver(Rectangle))
+            {
+                Root.ConsumeLeftClick();
+                OnClick(this);
+            }
+            if (Root.WasMouseRightClick && Root.IsMouseOver(Rectangle))
+            {
+                Root.ConsumeRightClick();
+                RightClick?.Invoke(this);
+            }
+            /*
+            if (this.IsActive && Root.WasKeyPressed(Keys.Enter))
+            {
+                OnClick(this);
+            }*/
+            base.Update();
+        }
+        private bool isMouseOverThis;
+        public bool AlignRight;
+
+        /// <summary>
+        /// Creates an Auxiliary button.
+        /// </summary>
+        /// <param name="text">Text on the button.</param>
+        /// <param name="rect">Space of the button.</param>
+        public Button(string text, Rectangle rect)
+        {
+            Caption = text;
+            Rectangle = rect;
+        }
+        /// <summary>
+        /// Draws the button.
+        /// </summary>
+        public override void Draw()
+        {
+            isMouseOverThis = Root.IsMouseOver(Rectangle);
+            bool pressed = isMouseOverThis && Root.Mouse_NewState.LeftButton == ButtonState.Pressed;
+            Color outerBorderColor = isMouseOverThis ? Skin.OuterBorderColorMouseOver : (this.IsActive ? Skin.InnerBorderColorMouseOver : Skin.OuterBorderColor);
+            Color innerBorderColor = pressed ? Skin.InnerBorderColorMousePressed : (isMouseOverThis || this.IsActive ? Skin.InnerBorderColorMouseOver : Skin.InnerBorderColor);
+            Color innerButtonColor = isMouseOverThis ? Skin.GreyBackgroundColorMouseOver: Skin.GreyBackgroundColor;
+            Color textColor = isMouseOverThis ? Skin.TextColorMouseOver : Skin.TextColor;
+            Primitives.FillRectangle(Rectangle, innerBorderColor);
+            Primitives.DrawRectangle(Rectangle, outerBorderColor, Skin.OuterBorderThickness);
+            Primitives.DrawAndFillRectangle(InnerRectangleWithBorder, innerButtonColor, outerBorderColor, Skin.OuterBorderThickness);
+
+            Primitives.DrawMultiLineText(Caption, AlignRight ? InnerRectangle.Extend(-4,0) : InnerRectangle, textColor, FontFamily.Normal, AlignRight ? Primitives.TextAlignment.Right : Primitives.TextAlignment.Middle);
+        } 
+    }
+ 
+}
